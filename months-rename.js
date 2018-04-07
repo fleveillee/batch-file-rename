@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 const Confirm = require('prompt-confirm');
 
 let monthNames = new Map([
