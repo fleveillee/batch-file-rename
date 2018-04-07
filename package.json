@@ -1,0 +1,17 @@
+{
+  "name": "file-rename",
+  "version": "1.0.0",
+  "description": "Batch file renaming",
+  "main": "index.js",
+  "author": "Frédéric Léveillée",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "prompt-confirm": "^1.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.10.0"
+  }
+}
