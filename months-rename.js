@@ -1,7 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 const Confirm = require('prompt-confirm');
 
-let monthNames = new Map([
+const monthNames = new Map([
   ['Jan', '.01.'],
   ['Feb', '.02.'],
   ['Mar', '.03.'],
@@ -18,24 +19,32 @@ let monthNames = new Map([
 
 const dirname = process.argv[2] || process.cwd();
 
+function renameFiles(filenamesMap, filesPath = '') {
+  filenamesMap.forEach((newFilename, filename) => {
+    fs.rename(filesPath + filename, filesPath + newFilename, (err) => {
+      if (err) console.log(`ERROR: ${err}`);
+    });
+  });
+}
+
 fs.readdir(dirname, (err, files) => {
   if (err) {
     console.error('Could not access the directory.', err);
     process.exit(1);
   }
 
-  let fileRenamingMap = new Map();
-
-  files.forEach((filename, index) => {
-    //console.log(filename);
+  const fileRenamingMap = new Map();
+  console.log(`Found ${files.length} files in folder`);
+  files.forEach((filename) => {
+    // console.log(filename);
 
     let newFilename = filename;
 
-    for (var key of monthNames.keys()) {
-      if (newFilename.includes(key)) {
-        newFilename = newFilename.replace(key, monthNames.get(key));
+    monthNames.forEach((number, month) => {
+      if (newFilename.includes(month)) {
+        newFilename = newFilename.replace(month, number);
       }
-    }
+    });
 
     if (filename !== newFilename) {
       fileRenamingMap.set(filename, newFilename);
@@ -43,25 +52,21 @@ fs.readdir(dirname, (err, files) => {
   });
 
   if (fileRenamingMap.size) {
-    console.log('The following files will be renamed:');
-    for (let [filename, newFilename] of fileRenamingMap.entries()) {
-      console.log(`${filename} => ${newFilename}`);
-    }
+    console.log(`Found ${fileRenamingMap.size} files to be renamed:`);
+    fileRenamingMap.forEach(
+      (newFilename, filename) => console.log(`${filename} => ${newFilename}`),
+    );
 
-    let confirm = new Confirm('Proceed?').run().then(function(proceed) {
-      if (proceed) {
-        renameFiles(fileRenamingMap);
+    new Confirm('Proceed?').ask((answer) => {
+      if (answer) {
+        let filesPath = dirname;
+        if (dirname.slice(-1) !== path.sep) {
+          filesPath += path.sep;
+        }
+        renameFiles(fileRenamingMap, filesPath);
       }
     });
   } else {
     console.log('No files found matching rename criterias');
   }
 });
-
-function renameFiles(filenamesMap) {
-  for (let [filename, newFilename] of filenamesMap.entries()) {
-    fs.rename(filename, newFilename, err => {
-      if (err) console.log('ERROR: ' + err);
-    });
-  }
-}
